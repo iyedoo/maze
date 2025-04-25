@@ -16,7 +16,7 @@ PATH = (255, 255, 0)
 
 pygame.init()
 win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Maze!")
+pygame.display.set_caption("Maze Generator + Solver")
 clock = pygame.time.Clock()
 
 class Cell:
@@ -26,7 +26,7 @@ class Cell:
         self.walls = [True] * 4  # top, right, bottom, left
         self.in_path = False
 
-    def draw(self, surf, current = False):
+    def draw(self, surf, current=False):
         x = self.col * CELL_SIZE
         y = self.row * CELL_SIZE
 
@@ -38,10 +38,10 @@ class Cell:
         if current:
             pygame.draw.rect(surf, CURRENT, (x, y, CELL_SIZE, CELL_SIZE))
 
-        if self.walls[0]: pygame.draw.line(surf, LINE, (x, y), (x + CELL_SIZE, y), 2)
-        if self.walls[1]: pygame.draw.line(surf, LINE, (x + CELL_SIZE, y), (x + CELL_SIZE, y + CELL_SIZE), 2)
-        if self.walls[2]: pygame.draw.line(surf, LINE, (x + CELL_SIZE, y + CELL_SIZE), (x, y + CELL_SIZE), 2)
-        if self.walls[3]: pygame.draw.line(surf, LINE, (x, y + CELL_SIZE), (x, y), 2)
+        if self.walls[0]: pygame.draw.line(surf, LINE, (x, y), (x + CELL_SIZE, y), 3)
+        if self.walls[1]: pygame.draw.line(surf, LINE, (x + CELL_SIZE, y), (x + CELL_SIZE, y + CELL_SIZE), 3)
+        if self.walls[2]: pygame.draw.line(surf, LINE, (x + CELL_SIZE, y + CELL_SIZE), (x, y + CELL_SIZE), 3)
+        if self.walls[3]: pygame.draw.line(surf, LINE, (x, y + CELL_SIZE), (x, y), 3)
 
     def check_neighbors(self, grid):
         neighbors = []
@@ -84,7 +84,7 @@ def draw_grid(win, grid, current):
 
 def solve_maze(grid):
     start = grid[0][0]
-    end = grid[ROWS - 1][COLS - 1]
+    end = grid[ROWS-1][COLS-1]
     stack = [(start, [])]
     visited = set()
 
@@ -107,10 +107,10 @@ def solve_maze(grid):
 
         r, c = current.row, current.col
         neighbors = []
-        if not current.walls[0]: neighbors.append(grid[r - 1][c])
-        if not current.walls[1]: neighbors.append(grid[r][c + 1])
-        if not current.walls[2]: neighbors.append(grid[r + 1][c])
-        if not current.walls[3]: neighbors.append(grid[r][c - 1])
+        if not current.walls[0]: neighbors.append(grid[r-1][c])
+        if not current.walls[1]: neighbors.append(grid[r][c+1])
+        if not current.walls[2]: neighbors.append(grid[r+1][c])
+        if not current.walls[3]: neighbors.append(grid[r][c-1])
 
         for neighbor in neighbors:
             if neighbor not in visited:
@@ -120,8 +120,7 @@ def main():
     grid = make_grid()
     stack = []
     current = grid[0][0]
-    current.visited = True
-    generating = True
+    generating = False
     solved = False
 
     running = True
@@ -133,6 +132,9 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN and not generating:
+                    current.visited = True
+                    generating = True
                 if event.key == pygame.K_SPACE and not generating and not solved:
                     solve_maze(grid)
                     solved = True
